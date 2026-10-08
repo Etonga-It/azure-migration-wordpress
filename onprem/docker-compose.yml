@@ -1,0 +1,32 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: onprem-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wp_lab_password
+      MYSQL_ROOT_PASSWORD: root_lab_password
+    volumes:
+      - db_data:/var/lib/mysql
+
+  wordpress:
+    image: wordpress:6-php8.2-apache
+    container_name: onprem-wordpress
+    depends_on:
+      - db
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wp_lab_password
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wp_content:/var/www/html/wp-content
+
+volumes:
+  db_data:
+  wp_content:
