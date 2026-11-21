@@ -13,6 +13,18 @@ resource "azurerm_subnet" "this" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.this.name
   address_prefixes     = [each.value]
+  dynamic "delegation" {
+    for_each = each.key == "data" ? [1] : []
+
+    content {
+      name = "mysql-flexible-server"
+
+      service_delegation {
+        name    = "Microsoft.DBforMySQL/flexibleServers"
+        actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+      }
+    }
+  }
 }
 
 resource "azurerm_network_security_group" "this" {
